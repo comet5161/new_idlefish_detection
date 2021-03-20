@@ -91,20 +91,28 @@ def response(flow: mitmproxy.http.HTTPFlow):
                 # 过滤已存在
                 item_exists = db_items.find_one({'item_id': item['item_id']})
                 if(item_exists):
-                    is_bad_item = True
                     str_out = '### item already exists! ###'
-                    del item['time']
-                    del item['time_str']
-                    del item['desc']
-                    myquery = { "item_id": item['item_id'] }
-                    newvalues = { "$set": item}
-                    res = db_items.update_one(myquery, newvalues)
+                    t0 = item_exists.get('time')
+                    
+                    if(t0 and item['time'] - t0 > 60*60*24 ): #不是24h内发布的
+                        is_bad_item = True
+
+                        del item['time']
+                        del item['time_str']
+                        del item['desc']
+                        myquery = { "item_id": item['item_id'] }
+                        newvalues = { "$set": item}
+                        res = db_items.update_one(myquery, newvalues)
+                    else:
+                        continue
+
 
                 # 
                 if(is_bad_item):
                     exContent['title'] = detailParams['title'] = "++++++++++++++"
-                    if(len(richTitle) > 1):
-                        richTitle[1]['data']['text'] = "+++++++++++++"
+                    for ti in richTitle:
+                        if(ti['type'] == 'Text'):
+                            ti['data']['text'] = "+++++++++++++"
                     #print(str_out)
                     continue
                 else:
@@ -117,9 +125,9 @@ def response(flow: mitmproxy.http.HTTPFlow):
         #print(flow.response.get_text())
         flow.response.set_text(json.dumps(result))
 
-        with open('resonsen_modified.json','w') as f:
-            f.write(json.dumps(result))
-            f.close()
+        # with open('resonsen_modified.json','w') as f:
+        #     f.write(json.dumps(result))
+        #     f.close()
 
 
     # 将响应中所有“搜索”替换为“请使用谷歌”
