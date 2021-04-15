@@ -1,7 +1,14 @@
+## 启动安卓frida服务
 adb connect 192.168.1.8:5555
 adb shell
 /data/local/tmp/frida-server
 
+## 启动mongo服务
+mongod --dbpath=/Volumes/MyDisk/mongodb/db/
 
-mitmweb -s /Users/weiweixing/OneDrive\ -\ zju.edu.cn/github/new_idlefish_detection.air/tools/抓包工具/py/save_idle_fish_info.py
+## 启动代理服务
+mitmweb -s save_idle_fish_info.py
+
+## 启动hook
+frida -U -l frida_hook_idlefish.js --no-pause -f com.taobao.idlefish
 

@@ -1,3 +1,5 @@
+//frida用
+
 Java.perform(function () {
     var SwitchConfig = Java.use('mtopsdk.mtop.global.SwitchConfig');
     var description = ""
